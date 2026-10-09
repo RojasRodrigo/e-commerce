@@ -29,7 +29,7 @@ export default function App() {
         </h2>
 
         {productosFiltrados.length === 0 ? (
-          <p className="text-slate-500">No se encontraron productos 😕</p>
+          <p className="text-slate-500">No se encontraron productos</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {productosFiltrados.map((p) => (
