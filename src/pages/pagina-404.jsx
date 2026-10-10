@@ -4,7 +4,7 @@ export default function NotFound() {
     const navigate = useNavigate();
 
     return (
-        <section className="min-h-[calc(100vh-4rem)] bg-white flex items-center justify-center px-6 py-16">
+        <section className="flex flex-1 items-center justify-center bg-white px-6 py-16">
             <div className="max-w-xl w-full text-center">
 
                 {/* Número 404 grande con acento azul */}

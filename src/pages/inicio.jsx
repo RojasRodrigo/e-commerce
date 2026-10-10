@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
 
 const products = [
@@ -69,9 +70,9 @@ export default function Home() {
 
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="text-xl font-bold text-slate-900">{product.price}</span>
-                                        <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500">
+                                        <Link to="/iniciar-sesion" className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500">
                                             Agregar
-                                        </button>
+                                        </Link>
                                     </div>
                                 </div>
                             </article>

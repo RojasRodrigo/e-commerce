@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function NavBar({ value = "", onSearch }) {
     const [query, setQuery] = useState(value);
@@ -15,20 +16,19 @@ export default function NavBar({ value = "", onSearch }) {
     };
 
     return (
-        <nav className="w-full bg-white border-b border-slate-200">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
-
-                <a href="/" className="shrink-0">
-                    <span className="text-2xl font-semibold text-slate-900 tracking-tight">
-                        TechNova
+        <nav className="w-full border-b border-slate-200 bg-white">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6">
+                <Link to="/" className="shrink-0">
+                    <span className="text-4xl font-black tracking-tight text-slate-900">
+                        Tech<span className="text-slate-900">Nova</span>
                     </span>
-                </a>
+                </Link>
 
-                <ul className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-800">
-                    <li><a href="#" className="hover:text-slate-500 transition-colors">Inicio</a></li>
-                    <li><a href="#" className="hover:text-slate-500 transition-colors">Productos</a></li>
-                    <li><a href="#" className="hover:text-slate-500 transition-colors">Categorías</a></li>
-                    <li><a href="#" className="hover:text-slate-500 transition-colors">Ofertas</a></li>
+                <ul className="hidden items-center gap-8 text-lg font-medium text-slate-800 md:flex">
+                    <li><Link to="/" className="transition-colors hover:text-slate-500">Inicio</Link></li>
+                    <li><Link to="/productos" className="transition-colors hover:text-slate-500">Productos</Link></li>
+                    <li><Link to="/categorias" className="transition-colors hover:text-slate-500">Categorías</Link></li>
+                    <li><a href="#" className="transition-colors hover:text-slate-500">Ofertas</a></li>
                 </ul>
 
                 <div className="flex items-center gap-4 shrink-0">
@@ -38,14 +38,18 @@ export default function NavBar({ value = "", onSearch }) {
                             value={value}
                             onChange={handleChange}
                             placeholder="Buscar productos..."
-                            className="w-64 bg-slate-100 text-sm text-slate-700 placeholder-slate-400 rounded-full px-4 py-2 outline-none border border-transparent focus:border-slate-300 focus:bg-white transition"
+                            className="w-64 rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-700 placeholder-slate-400 outline-none transition focus:border-slate-300 focus:bg-white"
                         />
                     </form>
 
-                    <button aria-label="Carrito" className="relative flex items-center p-1 hover:opacity-70 transition-opacity">
+                    <Link to="/iniciar-sesion" className="whitespace-nowrap text-sm font-semibold text-slate-700 transition-colors hover:text-blue-600">
+                        Iniciar sesión
+                    </Link>
+
+                    <button type="button" aria-label="Carrito" className="relative flex items-center p-1 text-slate-700 transition hover:opacity-70">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-slate-700"
+                            className="h-5 w-5"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -57,7 +61,7 @@ export default function NavBar({ value = "", onSearch }) {
                                 d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
                             />
                         </svg>
-                        <span className="ml-1 bg-blue-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                        <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
                             0
                         </span>
                     </button>
