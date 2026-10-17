@@ -4,6 +4,7 @@ import Categorias from './pages/categorias'
 import Productos from './pages/productos'
 import IniciarSesion from './pages/iniciar-sesion'
 import NotFound from './pages/pagina-404'
+import Carrito from './pages/carrito'
 import Footer from './components/Footer'
 
 function PageLayout() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="/productos" element={<Productos />} />
         <Route path="/categorias" element={<Categorias />} />
         <Route path="/iniciar-sesion" element={<IniciarSesion />} />
+        <Route path="/carrito" element={<Carrito />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

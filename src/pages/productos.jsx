@@ -1,97 +1,88 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
-
-const products = [
-    { name: "Monitor Samsung", price: "Bs 990", category: "Computadoras" },
-    { name: "Teclado Logitech", price: "Bs 420", category: "Teclados" },
-    { name: "Mouse Logitech", price: "Bs 280", category: "Mouse" },
-    { name: "Audífonos Sony", price: "Bs 399", category: "Audífonos" },
-    { name: "Laptop Lenovo", price: "Bs 4.599", category: "Computadoras" },
-    { name: "Monitor LG", price: "Bs 860", category: "Monitores" },
-];
+import { useCart } from "../context/useCart";
+import { categories, formatPrice, products } from "../data/products";
 
 export default function Productos() {
-    const [search, setSearch] = useState("");
+    const [searchParams] = useSearchParams();
+    const initialSearch = searchParams.get("busqueda") ?? "";
+    const [search, setSearch] = useState(initialSearch);
+    const [sortByPrice, setSortByPrice] = useState(searchParams.get("orden") === "precio");
+    const navigate = useNavigate();
+    const { addItem } = useCart();
+    const selectedCategory = searchParams.get("categoria");
+    const showOffers = searchParams.get("ofertas") === "true";
+
     const filteredProducts = useMemo(() => {
         const term = search.trim().toLowerCase();
-        return products.filter((product) => product.name.toLowerCase().includes(term));
-    }, [search]);
+        return products
+            .filter((product) => !term || product.name.toLowerCase().includes(term))
+            .filter((product) => !selectedCategory || product.category === selectedCategory)
+            .filter((product) => !showOffers || product.onSale)
+            .sort((first, second) => sortByPrice ? first.price - second.price : 0);
+    }, [search, selectedCategory, showOffers, sortByPrice]);
+
+    const addToCart = (product) => {
+        addItem(product);
+        navigate("/carrito");
+    };
+
+    const pageTitle = showOffers ? "Ofertas" : selectedCategory ?? "Productos";
 
     return (
         <>
-            <NavBar value={search} onSearch={setSearch} />
-
+            <NavBar value={search || initialSearch} onSearch={setSearch} />
             <main className="mx-auto max-w-[1440px] px-4 pb-10 pt-8 sm:px-6 lg:px-8">
-                <h1 className="mb-8 text-[42px] font-black tracking-[-0.04em] text-slate-900">
-                    Productos
-                </h1>
+                <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tight text-slate-900">{pageTitle}</h1>
+                        {(selectedCategory || showOffers || initialSearch) && (
+                            <Link to="/productos" className="mt-2 inline-block text-sm font-medium text-blue-600 hover:underline">Quitar filtros y ver todo</Link>
+                        )}
+                    </div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                        <input type="checkbox" checked={sortByPrice} onChange={(event) => setSortByPrice(event.target.checked)} className="h-4 w-4 accent-blue-600" />
+                        Ordenar por precio
+                    </label>
+                </div>
 
-                <div className="flex gap-8">
-                    <aside className="w-[280px] rounded-xl border border-slate-200 bg-[#f5f5f5] p-5 shadow-sm">
-                        <h2 className="mb-4 text-[15px] font-bold text-slate-900">Filtros</h2>
-
-                        <div className="mb-6">
-                            <p className="mb-3 text-[14px] font-medium text-slate-700">Categoría</p>
-                            <div className="space-y-2 text-[14px] text-slate-700">
-                                <label className="flex items-center gap-2">
-                                    <input type="checkbox" className="h-4 w-4 rounded border-slate-300 accent-blue-600" />
-                                    Computadoras
-                                </label>
-                                <label className="flex items-center gap-2">
-                                    <input type="checkbox" className="h-4 w-4 rounded border-slate-300 accent-blue-600" />
-                                    Teclados
-                                </label>
-                                <label className="flex items-center gap-2">
-                                    <input type="checkbox" className="h-4 w-4 rounded border-slate-300 accent-blue-600" />
-                                    Audífonos
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="mb-8">
-                            <p className="mb-3 text-[14px] font-medium text-slate-700">Precio</p>
-                            <div className="grid grid-cols-2 gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Mín."
-                                    className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:border-blue-400"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Máx."
-                                    className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 outline-none focus:border-blue-400"
-                                />
-                            </div>
-                        </div>
-
-                        <button className="w-full rounded-lg bg-[#1d7ef2] px-4 py-3 text-base font-bold text-white shadow-sm transition hover:bg-[#166ddb]">
-                            Aplicar filtros
-                        </button>
+                <div className="flex flex-col gap-8 md:flex-row">
+                    <aside className="h-fit w-full rounded-xl border border-slate-200 bg-[#f5f5f5] p-5 shadow-sm md:w-[260px]">
+                        <h2 className="mb-4 text-base font-bold text-slate-900">Categorías</h2>
+                        <ul className="space-y-2 text-sm text-slate-700">
+                            {categories.map((category) => (
+                                <li key={category}>
+                                    <Link
+                                        to={`/productos?categoria=${encodeURIComponent(category)}`}
+                                        aria-current={selectedCategory === category ? "page" : undefined}
+                                        className={`block rounded-md px-2 py-1 hover:bg-blue-50 hover:text-blue-700 ${selectedCategory === category ? "bg-blue-50 font-semibold text-blue-700" : ""}`}
+                                    >
+                                        {category}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                        <Link to="/categorias" className="mt-5 inline-block text-sm font-semibold text-blue-600 hover:underline">Todas las categorías</Link>
                     </aside>
 
-                    <section className="flex-1">
+                    <section className="min-w-0 flex-1" aria-label={pageTitle}>
                         {filteredProducts.length === 0 ? (
-                            <p className="rounded-xl border border-slate-200 bg-white p-6 text-slate-600">
-                                No se encontraron productos para “{search}”.
-                            </p>
+                            <p className="rounded-xl border border-slate-200 bg-white p-6 text-slate-600">No se encontraron productos con esos filtros.</p>
                         ) : (
-                            <div className="grid gap-6 xl:grid-cols-3">
+                            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                                 {filteredProducts.map((product) => (
-                                    <article key={product.name} className="rounded-2xl border border-slate-200 bg-[#f5f5f5] p-0 shadow-sm">
+                                    <article key={product.id} className="rounded-2xl border border-slate-200 bg-[#f5f5f5] shadow-sm">
                                         <div className="h-[200px] rounded-t-2xl bg-[#dfeaf4]" />
-
                                         <div className="px-4 pb-5 pt-4">
-                                            <h2 className="mb-4 text-[19px] font-bold text-slate-900">
-                                                {product.name}
-                                            </h2>
-                                            <p className="mb-4 text-[18px] font-bold text-slate-900">
-                                                {product.price}
-                                            </p>
-
-                                            <Link to="/iniciar-sesion" className="block w-full rounded-lg bg-[#1d7ef2] px-4 py-2 text-center text-sm font-bold text-white transition hover:bg-[#166ddb]">
-                                                Agregar
-                                            </Link>
+                                            <p className="mb-1 text-sm text-slate-500">{product.category}{product.onSale ? " · Oferta" : ""}</p>
+                                            <h2 className="mb-4 text-lg font-bold text-slate-900">{product.name}</h2>
+                                            <div className="flex items-center justify-between gap-3">
+                                                <p className="text-lg font-bold text-slate-900">{formatPrice(product.price)}</p>
+                                                <button type="button" onClick={() => addToCart(product)} className="rounded-lg bg-[#1d7ef2] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#166ddb]">
+                                                    Agregar al carrito
+                                                </button>
+                                            </div>
                                         </div>
                                     </article>
                                 ))}

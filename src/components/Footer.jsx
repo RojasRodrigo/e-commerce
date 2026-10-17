@@ -14,9 +14,12 @@ export default function Footer() {
                 </div>
 
                 <nav aria-label="Navegación del pie de página" className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
+                    <Link to="/" className="transition-colors hover:text-blue-600">Inicio</Link>
                     <Link to="/productos" className="transition-colors hover:text-blue-600">Productos</Link>
                     <Link to="/categorias" className="transition-colors hover:text-blue-600">Categorías</Link>
+                    <Link to="/productos?ofertas=true" className="transition-colors hover:text-blue-600">Ofertas</Link>
                     <Link to="/iniciar-sesion" className="transition-colors hover:text-blue-600">Iniciar sesión</Link>
+                    <Link to="/carrito" className="transition-colors hover:text-blue-600">Carrito</Link>
                 </nav>
 
                 <p className="text-xs text-slate-500">
