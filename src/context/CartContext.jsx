@@ -6,9 +6,16 @@ export function CartProvider({ children }) {
 
     const addItem = (product) => {
         setItems((currentItems) => {
+            if (product.stock !== null && product.stock !== undefined && product.stock <= 0) {
+                return currentItems;
+            }
             const existingItem = currentItems.find((item) => item.id === product.id);
 
             if (existingItem) {
+                if (product.stock !== null && product.stock !== undefined
+                    && existingItem.quantity >= product.stock) {
+                    return currentItems;
+                }
                 return currentItems.map((item) =>
                     item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
                 );
@@ -21,13 +28,26 @@ export function CartProvider({ children }) {
     const updateQuantity = (productId, quantity) => {
         setItems((currentItems) =>
             currentItems
-                .map((item) => item.id === productId ? { ...item, quantity } : item)
+                .map((item) => {
+                    if (item.id !== productId) {
+                        return item;
+                    }
+                    const requestedQuantity = Number.isFinite(quantity) ? Math.floor(quantity) : 0;
+                    const availableQuantity = item.stock === null || item.stock === undefined
+                        ? requestedQuantity
+                        : Math.min(requestedQuantity, Math.max(0, item.stock));
+                    return { ...item, quantity: availableQuantity };
+                })
                 .filter((item) => item.quantity > 0)
         );
     };
 
     const removeItem = (productId) => {
         setItems((currentItems) => currentItems.filter((item) => item.id !== productId));
+    };
+
+    const clearCart = () => {
+        setItems([]);
     };
 
     const value = {
@@ -37,6 +57,7 @@ export function CartProvider({ children }) {
         addItem,
         updateQuantity,
         removeItem,
+        clearCart,
     };
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/useCart";
+import { useAuth } from "../context/useAuth";
 
 export default function NavBar({ value = "", onSearch }) {
     const [query, setQuery] = useState(value);
+    const [actionError, setActionError] = useState("");
     const navigate = useNavigate();
     const { itemCount } = useCart();
+    const { user, logout } = useAuth();
 
     const handleChange = (event) => {
         const nextValue = event.target.value;
@@ -18,6 +21,16 @@ export default function NavBar({ value = "", onSearch }) {
         const params = new URLSearchParams();
         if (query.trim()) params.set("busqueda", query.trim());
         navigate(`/productos${params.size ? `?${params.toString()}` : ""}`);
+    };
+
+    const handleLogout = async () => {
+        setActionError("");
+        try {
+            await logout();
+            navigate("/");
+        } catch (error) {
+            setActionError(error.message || "No se pudo cerrar la sesión.");
+        }
     };
 
     return (
@@ -49,9 +62,24 @@ export default function NavBar({ value = "", onSearch }) {
                         />
                     </form>
 
-                    <Link to="/iniciar-sesion" className="whitespace-nowrap text-sm font-semibold text-slate-700 transition-colors hover:text-blue-600">
-                        Iniciar sesión
-                    </Link>
+                    {user ? (
+                        <div className="flex items-center gap-2">
+                            <Link to="/mi-cuenta" className="max-w-28 truncate text-sm font-semibold text-slate-700 transition-colors hover:text-blue-600 sm:max-w-none">
+                                {user.name}
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="whitespace-nowrap text-xs font-medium text-slate-500 transition-colors hover:text-blue-600"
+                            >
+                                Salir
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/iniciar-sesion" className="whitespace-nowrap text-sm font-semibold text-slate-700 transition-colors hover:text-blue-600">
+                            Iniciar sesión
+                        </Link>
+                    )}
 
                     <Link to="/carrito" aria-label={`Carrito, ${itemCount} productos`} className="relative flex items-center gap-1 p-1 text-sm font-medium text-slate-700 transition hover:text-blue-600">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
@@ -63,6 +91,11 @@ export default function NavBar({ value = "", onSearch }) {
                     </Link>
                 </div>
             </div>
+            {actionError && (
+                <p role="alert" className="mx-auto max-w-7xl px-6 pb-2 text-right text-xs text-red-700">
+                    {actionError}
+                </p>
+            )}
         </nav>
     );
 }

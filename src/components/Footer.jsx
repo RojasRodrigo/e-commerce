@@ -19,6 +19,7 @@ export default function Footer() {
                     <Link to="/categorias" className="transition-colors hover:text-blue-600">Categorías</Link>
                     <Link to="/productos?ofertas=true" className="transition-colors hover:text-blue-600">Ofertas</Link>
                     <Link to="/iniciar-sesion" className="transition-colors hover:text-blue-600">Iniciar sesión</Link>
+                    <Link to="/mi-cuenta" className="transition-colors hover:text-blue-600">Mi cuenta</Link>
                     <Link to="/carrito" className="transition-colors hover:text-blue-600">Carrito</Link>
                 </nav>
 

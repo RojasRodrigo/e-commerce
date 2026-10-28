@@ -1,13 +1,46 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { loginUser, registerUser } from "../services/auth";
+import { useAuth } from "../context/useAuth";
 
 export default function IniciarSesion() {
     const [notice, setNotice] = useState("");
     const [isRegistering, setIsRegistering] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const navigate = useNavigate();
+    const { user: existingUser, refreshUser } = useAuth();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        setNotice("El formulario está listo; falta conectar el servicio de autenticación.");
+
+        const form = event.currentTarget;
+        const formData = new FormData(form);
+        const fullName = (formData.get("fullName") ?? "").toString().trim();
+        const email = (formData.get("email") ?? "").toString().trim();
+        const password = (formData.get("password") ?? "").toString();
+
+        setSubmitting(true);
+        try {
+            if (!isRegistering) {
+                const user = await loginUser({ email, password });
+                await refreshUser();
+                setNotice(`Bienvenido/a, ${user.name}. Redirigiendo...`);
+                form.reset();
+                window.setTimeout(() => navigate("/carrito"), 700);
+                return;
+            }
+
+            const user = await registerUser({ name: fullName, email, password });
+            await refreshUser();
+            setNotice(`Cuenta creada con éxito, ${user.name}. Se creó también un tercero nuevo en Dolibarr.`);
+            form.reset();
+        } catch (error) {
+            setNotice(error.message || "No se pudo completar la operación.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -44,6 +77,11 @@ export default function IniciarSesion() {
                         <p className="mt-1 text-sm text-slate-500">
                             {isRegistering ? "Regístrate para continuar" : "Ingresa para continuar"}
                         </p>
+                        {isRegistering && (
+                            <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                                Para pruebas, al crear la cuenta también se registra un tercero nuevo en Dolibarr. No se vincula a contactos existentes.
+                            </p>
+                        )}
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,6 +90,7 @@ export default function IniciarSesion() {
                                 Nombre completo
                                 <input
                                     type="text"
+                                    name="fullName"
                                     autoComplete="name"
                                     required
                                     placeholder="Tu nombre"
@@ -59,28 +98,49 @@ export default function IniciarSesion() {
                                 />
                             </label>
                         )}
-                        <label className="block text-xs font-medium">
-                            Correo electrónico
-                            <input
-                                type="email"
-                                autoComplete="email"
-                                required
-                                placeholder="tu@correo.com"
-                                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-blue-500"
-                            />
-                        </label>
+                        {(
+                            <label className="block text-xs font-medium">
+                                Correo electrónico
+                                <input
+                                    type="email"
+                                    name="email"
+                                    autoComplete="email"
+                                    required
+                                    placeholder="tu@correo.com"
+                                    className="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-blue-500"
+                                />
+                            </label>
+                        )}
 
-                        <label className="block text-xs font-medium">
-                            Contraseña
+                        <div>
+                            <label htmlFor="password" className="block text-xs font-medium">
+                                {isRegistering ? "Crea una contraseña" : "Contraseña"}
+                            </label>
+                            <div className="relative mt-2">
                             <input
-                                type="password"
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                name="password"
                                 autoComplete={isRegistering ? "new-password" : "current-password"}
                                 required
                                 minLength={8}
+                                maxLength={256}
                                 placeholder="Tu contraseña"
-                                className="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-blue-500"
+                                className="w-full rounded-md border border-slate-200 px-3 py-3 pr-12 text-sm font-normal outline-none transition placeholder:text-slate-400 focus:border-blue-500"
                             />
-                        </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((visible) => !visible)}
+                                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                    aria-pressed={showPassword}
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 transition hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                                >
+                                    {showPassword
+                                        ? <EyeOff aria-hidden="true" size={18} />
+                                        : <Eye aria-hidden="true" size={18} />}
+                                </button>
+                            </div>
+                        </div>
 
                         {!isRegistering && (
                             <div className="-mt-2 text-right">
@@ -96,26 +156,33 @@ export default function IniciarSesion() {
 
                         <button
                             type="submit"
+                            disabled={submitting}
                             className="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                         >
-                            {isRegistering ? "Crear cuenta" : "Iniciar sesión"}
+                            {submitting
+                                ? "Procesando..."
+                                : isRegistering ? "Crear cuenta" : "Iniciar sesión"}
                         </button>
                     </form>
 
-                    <div className="my-5 flex items-center gap-3 text-xs text-slate-500">
-                        <span className="h-px flex-1 bg-slate-200" />
-                        o
-                        <span className="h-px flex-1 bg-slate-200" />
-                    </div>
+                    {!existingUser && (
+                        <>
+                            <div className="my-5 flex items-center gap-3 text-xs text-slate-500">
+                                <span className="h-px flex-1 bg-slate-200" />
+                                o
+                                <span className="h-px flex-1 bg-slate-200" />
+                            </div>
 
-                    <button
-                        type="button"
-                        onClick={() => setNotice("Para habilitar Google se deben configurar las credenciales de OAuth.")}
-                        className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 px-4 py-3 text-sm transition hover:bg-slate-50"
-                    >
-                        <span aria-hidden="true" className="font-semibold">G</span>
-                        Continuar con Google
-                    </button>
+                            <button
+                                type="button"
+                                onClick={() => setNotice("Para habilitar Google se deben configurar las credenciales de OAuth.")}
+                                className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-200 px-4 py-3 text-sm transition hover:bg-slate-50"
+                            >
+                                <span aria-hidden="true" className="font-semibold">G</span>
+                                Continuar con Google
+                            </button>
+                        </>
+                    )}
 
                     {notice && (
                         <p role="status" className="mt-4 rounded-md bg-blue-50 px-3 py-2 text-center text-xs leading-relaxed text-blue-800">
@@ -136,6 +203,12 @@ export default function IniciarSesion() {
                             {isRegistering ? "Inicia sesión" : "Regístrate"}
                         </button>
                     </p>
+
+                    {existingUser && (
+                        <p className="mt-3 text-center text-xs text-slate-600">
+                            Sesión activa como <span className="font-semibold text-slate-800">{existingUser.name}</span>
+                        </p>
+                    )}
                 </section>
             </main>
         </div>

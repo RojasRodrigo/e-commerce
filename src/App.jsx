@@ -5,7 +5,9 @@ import Productos from './pages/productos'
 import IniciarSesion from './pages/iniciar-sesion'
 import NotFound from './pages/pagina-404'
 import Carrito from './pages/carrito'
+import MiCuenta from './pages/mi-cuenta'
 import Footer from './components/Footer'
+import { AuthProvider } from './context/AuthContext'
 
 function PageLayout() {
   return (
@@ -20,16 +22,19 @@ function PageLayout() {
 
 function App() {
   return (
-    <Routes>
-      <Route element={<PageLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/productos" element={<Productos />} />
-        <Route path="/categorias" element={<Categorias />} />
-        <Route path="/iniciar-sesion" element={<IniciarSesion />} />
-        <Route path="/carrito" element={<Carrito />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route element={<PageLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/productos" element={<Productos />} />
+          <Route path="/categorias" element={<Categorias />} />
+          <Route path="/iniciar-sesion" element={<IniciarSesion />} />
+          <Route path="/mi-cuenta" element={<MiCuenta />} />
+          <Route path="/carrito" element={<Carrito />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   )
 }
 

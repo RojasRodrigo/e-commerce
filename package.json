@@ -5,15 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "api": "node --experimental-sqlite --env-file-if-exists=.env server.js --api-only",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node --experimental-sqlite --env-file-if-exists=.env server.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "lucide-react": "^1.54.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
