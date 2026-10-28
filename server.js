@@ -59,9 +59,10 @@ async function proxyDolibarr(request, response, requestUrl) {
         if (requestUrl.searchParams.get("pagination_data") === "true") {
             upstreamUrl.searchParams.set("pagination_data", "true");
         }
-        if (requestUrl.searchParams.get("includestock") === "1"
+        if (requestUrl.searchParams.get("includestockdata") === "1"
+            || requestUrl.searchParams.get("includestock") === "1"
             || requestUrl.searchParams.get("include_stock") === "1") {
-            upstreamUrl.searchParams.set("includestock", "1");
+            upstreamUrl.searchParams.set("includestockdata", "1");
         }
     } else if (route === "/categories") {
         upstreamUrl.searchParams.set("type", "0");

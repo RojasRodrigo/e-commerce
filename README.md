@@ -102,6 +102,8 @@ El servidor atiende autenticación, pedidos y facturas con sesiones `HttpOnly`. 
 
 Para validar la integración se cargaron en Dolibarr nueve productos de demostración y sus siete categorías. Sus precios provienen del catálogo local de ejemplo y se crearon con IVA del 0%; reemplázalos o ajusta sus impuestos en Dolibarr antes de aceptar ventas reales.
 
+Si al comprar la tienda indica que no recibió existencias, verifica que el módulo de stock esté activado, que el usuario API tenga el permiso de lectura de stock y que el producto tenga un almacén con existencias configuradas. La API REST de Dolibarr recibe el parámetro `includestockdata=1` para cargar los datos de stock.
+
 ### Flujo actual
 
 - Frontend React: TechNova

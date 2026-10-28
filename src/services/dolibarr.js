@@ -149,7 +149,7 @@ export async function fetchDolibarrProducts() {
 
     while (page < pageCount) {
         const payload = await requestDolibarr(
-            `products?limit=100&page=${page}&pagination_data=true&includestock=1`
+            `products?limit=100&page=${page}&pagination_data=true&includestockdata=1`
         );
         products.push(...normalizeDolibarrProducts(payload));
         pageCount = Math.max(1, toNumber(payload?.pagination?.page_count) || 1);

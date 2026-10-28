@@ -392,7 +392,7 @@ async function createOrder(request, response, account) {
             throw new ApiError(400, "El pedido contiene un producto o una cantidad inválidos.");
         }
 
-        const product = await dolibarrRequest(`/products/${productId}?includestock=1`);
+        const product = await dolibarrRequest(`/products/${productId}?includestockdata=1`);
         const stock = productStock(product);
         if (stock === null) {
             throw new ApiError(503, "Dolibarr no devolvió las existencias del producto. Verifica que el módulo de stock esté activo y que el usuario API pueda consultar existencias.");
